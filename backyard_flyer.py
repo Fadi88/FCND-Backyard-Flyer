@@ -19,7 +19,7 @@ class States(Enum):
 
 
 def inbound(c, t):
-    return 0.95 * t < c < 1.05 * t
+    return 0.89 * t < c < 1.11 * t
 
 class BackyardFlyer(Drone):
 
@@ -30,8 +30,8 @@ class BackyardFlyer(Drone):
         self.in_mission = True
         self.check_state = {}
 
-        self.target_height = 5
-        self.target_length = 5
+        self.target_height = 3
+        self.target_length = 7
 
         self.current_point = 0
 
@@ -51,7 +51,7 @@ class BackyardFlyer(Drone):
         """
         if (
             self.flight_state == States.TAKEOFF
-            and -0.95 * self.target_height > self.local_position[2] > -1.05 * self.target_height
+            and -0.9 * self.target_height > self.local_position[2] > -1.1 * self.target_height
         ):
             self.flight_state = States.WAYPOINT
 
@@ -64,7 +64,8 @@ class BackyardFlyer(Drone):
 
         This triggers when `MsgID.LOCAL_VELOCITY` is received and self.local_velocity contains new data
         """
-        pass
+        if self.flight_state == States.LANDING and abs(self.local_velocity[0]) < 0.01 and abs(self.local_velocity[1]) < 0.01:
+            self.disarming_transition()
 
     def state_callback(self):
         """
@@ -137,7 +138,7 @@ class BackyardFlyer(Drone):
         if self.current_point > 3:
             n_wp = self.all_waypoints[0]
             self.landing_transition()
-            self.manual_transition()
+
         self.cmd_position(n_wp[0], n_wp[1], n_wp[2], 0)
 
     def landing_transition(self):
