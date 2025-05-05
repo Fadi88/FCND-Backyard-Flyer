@@ -19,7 +19,7 @@ class States(Enum):
 
 
 def inbound(c, t):
-    return 0.85 * t < c < 1.15 * t
+    return abs(t-c) < 0.05
 
 class BackyardFlyer(Drone):
 
@@ -31,7 +31,7 @@ class BackyardFlyer(Drone):
         self.check_state = {}
 
         self.target_height = 3
-        self.target_length = 7
+        self.target_length = 10
 
         self.current_point = 0
 
@@ -66,6 +66,7 @@ class BackyardFlyer(Drone):
         """
         if self.flight_state == States.LANDING and abs(self.local_velocity[2]) < 0.01 and abs(self.local_position[2]) < self.target_height // 2:
             self.disarming_transition()
+            self.manual_transition()
 
     def state_callback(self):
         """
